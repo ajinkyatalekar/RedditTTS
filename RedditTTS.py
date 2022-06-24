@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 from gtts import gTTS
 from pydub import AudioSegment
 import moviepy.editor as mp
+from moviepy.video.fx.all import crop
+
 import config
 
 class RedditTTS:
@@ -48,6 +50,7 @@ class RedditTTS:
                 'title': submission.title,
                 'selftext': submission.selftext,
                 'id': submission.id,
+                'subreddit': subreddit,
                 'comment': c
             })
 
@@ -98,7 +101,7 @@ class RedditTTS:
                 aud.save('temp/' + sub['id'] + '/' + str(i) + 'com.mp3')
                 i = i+1
 
-    def genVideo(self, quality=1):
+    def genVideo(self, quality=1, shorts=False):
         for sub in self.subs:
             videoclip = mp.VideoFileClip("src/video/bgFull.mp4")
             videoclip = videoclip.resize(quality)
@@ -130,32 +133,34 @@ class RedditTTS:
 
             # Layer BG Music
             sound1 = AudioSegment.from_file("temp/" + sub['id'] + "/fintts.mp3", format="mp3")
-            sound2 = AudioSegment.from_file("src/audio/bg" + str(random.randint(1,2)) + ".mp3", format="mp3")
+            sound2 = AudioSegment.from_file("src/audio/" + os.listdir("src/audio")[random.randint(0,len(os.listdir("src/audio"))-1)], format="mp3")
             overlay = sound1.overlay(sound2, position=0, loop=True)
             overlay.export("temp/" + sub['id'] + "/finalAudio.mp3", format="mp3")
-            finaud = mp.AudioFileClip('temp/' + sub['id'] + '/finalAudio.mp3')
-            
-            videoclip.audio = finaud
 
             path = 'out/' + sub['id']
             if not os.path.exists(path):
                 os.makedirs(path)
 
             final = mp.CompositeVideoClip([videoclip, titleVid])
-            final.write_videofile('out/' + sub['id'] + '/' + sub['id'] + '.mp4')
+
+            if (shorts):
+                w,h = final.size
+                final = crop(final,  x_center=w/2 , y_center=h/2, width=w/2, height=h)
+
+            final = final.set_audio(mp.AudioFileClip('temp/' + sub['id'] + '/finalAudio.mp3'))
+
+            if (shorts):
+                final.write_videofile('out/' + sub['id'] + '/' + sub['id'] + '_s.mp4')
+            else:
+                final.write_videofile('out/' + sub['id'] + '/' + sub['id'] + '.mp4')
 
             f = open('out/' + sub['id'] + "/ytMeta" + ".txt", "a")
-            f.write(sub['title'])
+            f.write(sub['title'] + " r/" + sub['subreddit'])
             f.close()
-        
-    def printSubmissions(self):
-        for i in self.subs:
-            print(i['title'], i['selftext'])
 
 ## Executing Everything
 rTTS=RedditTTS()
-rTTS.getSubmissions(subreddit='jokes', posts=5, comments=3, skipPosts=2)
-rTTS.printSubmissions()
+rTTS.getSubmissions(subreddit='jokes', posts=12, comments=2, skipPosts=11)
 rTTS.genImages()
 rTTS.genAudio()
-rTTS.genVideo(quality=1)
+rTTS.genVideo(quality=1, shorts=True)
