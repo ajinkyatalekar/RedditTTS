@@ -1,0 +1,5 @@
+user_agent="rTTS 2.0.0"
+client_id=""
+client_secret=""
+username=""
+password=""
