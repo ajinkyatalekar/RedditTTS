@@ -16,11 +16,12 @@ while scraping Reddit.
 be generated in the */out* folder ~! :smile:
 
 ## Libraries Used
-If any of these are missing, just do `pip install <name>` and that should resolve it.  
+If any of these are missing, just do `pip install <name>` and that should resolve it. For `ffmpeg`, install it from their website.  
 - `praw` to scrape Reddit posts.  
 - `selenium` and `webdriver_manager` to generate screenshots of the posts.  
 - `gtts` and `pydub` to generate audio.  
-- `moviepy` to generate video.
+- `moviepy` to generate video.  
+- `ffmpeg` and `ffprobe` to generate video.
 
 ## Future Plans
 - Use the Reddit API directly instead of praw to improve performance (Current working on this :exclamation:).  
