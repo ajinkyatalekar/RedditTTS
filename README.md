@@ -10,8 +10,9 @@ and screenshots of the post and top comments. :sparkles:
 1. Create your own Reddit Bot [here](https://www.reddit.com/prefs/apps/) and note down the `client id` and `client secret`.  
 2. Now, in the *config.py* file, put in your bot's `client_id` and `client_secret`, also put in your Reddit `username` and `password` which the bot will use
 while scraping Reddit.  
-3. Finally, install all the required libraries mentioned below and you're ready to go!
-4. Now open *RedditTTS.py* and update perameters like `subreddit`, `posts` and `comments` to get posts from the subreddit of your choice and a video will
+3. Add desired background video file to *src/video* and name it `bgFull.mp4`.
+4. Finally, install all the required libraries mentioned below and you're ready to go!
+5. Now open *RedditTTS.py* and update perameters like `subreddit`, `posts` and `comments` to get posts from the subreddit of your choice and a video will
 be generated in the */out* folder ~! :smile:
 
 ## Libraries Used
