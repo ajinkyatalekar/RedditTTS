@@ -1,1 +1,1 @@
-Place the background video file here, name it *bgFull.mp4*
+Place the background video file here, name it *vid.mp4*
