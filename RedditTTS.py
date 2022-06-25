@@ -157,10 +157,11 @@ class RedditTTS:
             f = open('out/' + sub['id'] + "/ytMeta" + ".txt", "a")
             f.write(sub['title'] + " r/" + sub['subreddit'])
             f.close()
+            os.rmdir("temp")
 
 ## Executing Everything
 rTTS=RedditTTS()
-rTTS.getSubmissions(subreddit='jokes', posts=12, comments=2, skipPosts=11)
-rTTS.genImages()
-rTTS.genAudio()
+rTTS.getSubmissions(subreddit='askreddit', posts=5, comments=0, skipPosts=4)
+# rTTS.genImages()
+# rTTS.genAudio()
 rTTS.genVideo(quality=1, shorts=True)
