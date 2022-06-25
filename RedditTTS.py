@@ -104,7 +104,7 @@ class RedditTTS:
 
     def genVideo(self, quality=1, shorts=False):
         for sub in self.subs:
-            videoclip = mp.VideoFileClip("src/video/bgFull.mp4")
+            videoclip = mp.VideoFileClip("src/video/vid.mp4")
             videoclip = videoclip.resize(quality)
             audioclip = mp.AudioFileClip('temp/' + sub['id'] + '/tts.mp3')
 
