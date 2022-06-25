@@ -2,6 +2,7 @@
 # Misc
 import random
 import os
+import shutil
 # Reddit API
 import praw
 # Screenshot Maker
@@ -56,8 +57,8 @@ class RedditTTS:
 
     def genImages(self):
         options = webdriver.ChromeOptions()
-        # Using Custom Profile to bypass NSFW popups
-        # options.add_argument(r"--user-data-dir=C:/Users/ajink/AppData/Local/Google/Chrome/User Data")
+        # Using Custom Profile with Reddit account logged in to bypass NSFW popups -> Change <user> to your name
+        # options.add_argument(r"--user-data-dir=C:/Users/<user>/AppData/Local/Google/Chrome/User Data")
         # options.add_argument(r'--profile-directory="Default"')
         driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
 
@@ -154,14 +155,17 @@ class RedditTTS:
             else:
                 final.write_videofile('out/' + sub['id'] + '/' + sub['id'] + '.mp4')
 
-            f = open('out/' + sub['id'] + "/ytMeta" + ".txt", "a")
-            f.write(sub['title'] + " r/" + sub['subreddit'])
+            f = open('out/' + sub['id'] + "/dat" + ".txt", "a")
+            f.write("Title: " + sub['title']
+            + "\nSubreddit: " + sub['subreddit'])
             f.close()
-            os.rmdir("temp")
 
-## Executing Everything
+            shutil.rmtree("temp/" + sub['id'])
+        shutil.rmtree("temp")
+
+# Executing Everything
 rTTS=RedditTTS()
-rTTS.getSubmissions(subreddit='askreddit', posts=5, comments=0, skipPosts=4)
-# rTTS.genImages()
-# rTTS.genAudio()
+rTTS.getSubmissions(subreddit='jokes', posts=1, comments=3, skipPosts=0)
+rTTS.genImages()
+rTTS.genAudio()
 rTTS.genVideo(quality=1, shorts=True)
