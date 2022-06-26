@@ -18,6 +18,7 @@ import src.lib.moviepy.editor as mp
 from src.lib.moviepy.video.fx.all import crop
 from src.lib.json import load
 
+
 if getattr(sys, 'frozen', False):
     app_path = os.path.dirname(sys.executable)
 else:
@@ -188,7 +189,9 @@ class RedditTTS:
             # f.close()
 
             rmtree(app_path+"/temp/" + sub['id'])
-        rmtree(app_path+"/temp")
+        path = app_path+'/temp'
+        if os.path.exists(path):
+            rmtree(app_path+"/temp")
 
 def run(subreddit, posts, comments, skipPosts, quality, shorts, vidPath):
     rTTS=RedditTTS()
