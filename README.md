@@ -27,5 +27,5 @@ If any of these are missing, just do `pip install <name>` and that should resolv
 - Use the Reddit API directly instead of praw to improve performance (Current working on this :exclamation:).  
 - Once the script is finalized, make a GUI App to make using this ultra easy. :dizzy:
 
-## Creator
+## Contributors
 Ajinkya Talekar | CS Student at University at Buffalo | [ajinkyatalekar.github.io](https://ajinkyatalekar.github.io)
