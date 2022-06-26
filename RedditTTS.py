@@ -13,7 +13,7 @@ class GUI:
     def __init__(self):
         print(path)
         self.root = tk.Tk()
-        self.vidPath = path+"/src/video/vid.mp4"
+        self.vidPath = "null"
         self.quality=1
         self.shorts=True
         with open(path+'/src/config.json') as json_file:
@@ -90,9 +90,15 @@ class GUI:
             "shorts":self.shorts, 
             "vidPath": str(self.vidPath)
         }
-
         with open(path+"/src/dat.json", "w") as outfile:
             json.dump(dat, outfile)
+
+        config = {
+            "client_id":self.client_id.get(),
+            "client_secret":self.client_secret.get()
+        }
+        with open(path+"/src/config.json", "w") as outfile:
+            json.dump(config, outfile)
 
         appPath = path+"/src/script.py"
         globals={"__file__": appPath,

@@ -32,7 +32,7 @@ class RedditTTS:
         self.reddit = Reddit(
             client_id=data['client_id'],
             client_secret=data['client_secret'],
-            user_agent=data['user_agent']
+            user_agent="rTTS 2.0"
         )
         self.subs = []
 
