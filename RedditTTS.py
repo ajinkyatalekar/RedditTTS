@@ -1,6 +1,6 @@
-import tkinter as tk
-from tkinter import filedialog
-import json
+import src.lib.tkinter as tk
+from src.lib.tkinter import filedialog
+import src.lib.json as json
 import os
 import sys
 
@@ -8,7 +8,6 @@ if getattr(sys, 'frozen', False):
     path = os.path.dirname(sys.executable)
 else:
     path = os.path.dirname(os.path.abspath(__file__))
-    
 
 class GUI:
     def __init__(self):
@@ -17,30 +16,45 @@ class GUI:
         self.vidPath = path+"/src/video/vid.mp4"
         self.quality=1
         self.shorts=True
+        with open(path+'/src/config.json') as json_file:
+            self.config = json.load(json_file)
 
     def loop(self):
-        self.frame1 = tk.Frame( width=800)
-        self.frame1.pack()
+
         self.frame2 = tk.Frame( width=800)
         self.frame2.pack()
+        self.frame1 = tk.Frame( width=800)
+        self.frame1.pack()
+
+        tk.Label(self.frame2, text="Reddit Client ID: ").pack()
+        self.client_id=tk.Entry(self.frame2, width=30)
+        self.client_id.insert(0, self.config['client_id'])
+        self.client_id.pack()
+
+        tk.Label(self.frame2, text="Reddit Client Secret: ").pack()
+        self.client_secret=tk.Entry(self.frame2, width=30)
+        self.client_secret.insert(0, self.config['client_secret'])
+        self.client_secret.pack()
+
+        tk.Label(self.frame2, text="(If you don't have a Reddit Client, you can get it here: https://www.reddit.com/prefs/apps)").pack()
 
         tk.Label(self.frame2, text="Subreddit: ").pack()
-        self.subreddit=tk.Entry(self.frame2, width=10)
+        self.subreddit=tk.Entry(self.frame2, width=30)
         self.subreddit.insert(0, "askreddit")
         self.subreddit.pack()
 
         tk.Label(self.frame2, text="Number of Posts: ").pack()
-        self.posts=tk.Entry(self.frame2, width=10)
+        self.posts=tk.Entry(self.frame2, width=30)
         self.posts.insert(0, "1")
         self.posts.pack()
 
         tk.Label(self.frame2, text="Number of Comments: ").pack()
-        self.comments=tk.Entry(self.frame2, width=10)
+        self.comments=tk.Entry(self.frame2, width=30)
         self.comments.insert(0, "0")
         self.comments.pack()
 
         tk.Label(self.frame2, text="Skipping posts: ").pack()
-        self.skipPosts=tk.Entry(self.frame2, width=10)
+        self.skipPosts=tk.Entry(self.frame2, width=30)
         self.skipPosts.insert(0, "0")
         self.skipPosts.pack()
 
