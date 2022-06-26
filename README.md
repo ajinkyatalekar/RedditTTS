@@ -8,9 +8,9 @@ and screenshots of the post and top comments. :sparkles:
 
 ## Usage
 1. Create your own Reddit Bot [here](https://www.reddit.com/prefs/apps/) and note down the `client id` and `client secret`.  
-2. Now, in the *config.py* file, put in your bot's `client_id` and `client_secret`, also put in your Reddit `username` and `password` which the bot will use
+2. Now, in the *src/config.json* file, put in your bot's `client_id`, `client_secret`, and your Reddit `username` and `password` which the bot will use
 while scraping Reddit.  
-3. Add desired background video file to *src/video* and name it `bgFull.mp4`.
+3. Add default video file to *src/video* and name it `bgFull.mp4` (You can skip this and choose a different video on launch).
 4. Finally, install all the required libraries mentioned below and you're ready to go!
 5. Now open *RedditTTS.py* and update perameters like `subreddit`, `posts` and `comments` to get posts from the subreddit of your choice and a video will
 be generated in the */out* folder ~! :smile:
@@ -27,5 +27,5 @@ If any of these are missing, just do `pip install <name>` and that should resolv
 - Use the Reddit API directly instead of praw to improve performance (Current working on this :exclamation:).  
 - Once the script is finalized, make a GUI App to make using this ultra easy. :dizzy:
 
-## Creator
+## Contributors
 Ajinkya Talekar | CS Student at University at Buffalo | [ajinkyatalekar.github.io](https://ajinkyatalekar.github.io)
