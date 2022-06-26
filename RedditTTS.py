@@ -1,171 +1,108 @@
-## Imports
-# Misc
-import random
+import src.lib.tkinter as tk
+from src.lib.tkinter import filedialog
+import src.lib.json as json
 import os
-import shutil
-# Reddit API
-import praw
-# Screenshot Maker
-from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-# TTS, Audio Editor, and Video Editor
-from gtts import gTTS
-from pydub import AudioSegment
-import moviepy.editor as mp
-from moviepy.video.fx.all import crop
+import sys
 
-import config
+if getattr(sys, 'frozen', False):
+    path = os.path.dirname(sys.executable)
+else:
+    path = os.path.dirname(os.path.abspath(__file__))
 
-class RedditTTS:
-    # Auth and Setup
+class GUI:
     def __init__(self):
-        self.reddit = praw.Reddit(
-            client_id=config.client_id,
-            client_secret=config.client_secret,
-            user_agent=config.user_agent,
-            username=config.username,
-            password=config.password
-        )
-        self.subs = []
+        print(path)
+        self.root = tk.Tk()
+        self.vidPath = path+"/src/video/vid.mp4"
+        self.quality=1
+        self.shorts=True
+        with open(path+'/src/config.json') as json_file:
+            self.config = json.load(json_file)
 
-    # Get Submissions from specified subreddit
-    def getSubmissions(self, subreddit='askreddit', posts=3, comments=0, skipPosts=0, u18=False):
-        submissions = iter(self.reddit.subreddit(subreddit).hot(limit=posts))
-        for i in range(skipPosts):
-            next(submissions)
+    def loop(self):
 
-        for submission in submissions:
-            if (u18 and submission.over_18 == True):
-                continue
-            
-            c = []
-            post = self.reddit.submission(submission.id)
-            for comment in post.comments[0:comments]:
-                c.append({
-                    'body': comment.body,
-                    'link': 'https://www.reddit.com' + comment.permalink,
-                })
+        self.frame2 = tk.Frame( width=800)
+        self.frame2.pack()
+        self.frame1 = tk.Frame( width=800)
+        self.frame1.pack()
 
-            self.subs.append({
-                'title': submission.title,
-                'selftext': submission.selftext,
-                'id': submission.id,
-                'subreddit': subreddit,
-                'comment': c
-            })
+        tk.Label(self.frame2, text="Reddit Client ID: ").pack()
+        self.client_id=tk.Entry(self.frame2, width=30)
+        self.client_id.insert(0, self.config['client_id'])
+        self.client_id.pack()
 
-    def genImages(self):
-        options = webdriver.ChromeOptions()
-        # Using Custom Profile with Reddit account logged in to bypass NSFW popups -> Change <user> to your name
-        # options.add_argument(r"--user-data-dir=C:/Users/<user>/AppData/Local/Google/Chrome/User Data")
-        # options.add_argument(r'--profile-directory="Default"')
-        driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
+        tk.Label(self.frame2, text="Reddit Client Secret: ").pack()
+        self.client_secret=tk.Entry(self.frame2, width=30)
+        self.client_secret.insert(0, self.config['client_secret'])
+        self.client_secret.pack()
 
-        for sub in self.subs:
-            driver.get('https://www.reddit.com/'+sub['id'])
+        tk.Label(self.frame2, text="(If you don't have a Reddit Client, you can get it here: https://www.reddit.com/prefs/apps)").pack()
 
-            path = 'temp/' + sub['id']
-            if not os.path.exists(path):
-                os.makedirs(path)
+        tk.Label(self.frame2, text="Subreddit: ").pack()
+        self.subreddit=tk.Entry(self.frame2, width=30)
+        self.subreddit.insert(0, "askreddit")
+        self.subreddit.pack()
 
-            # element = driver.find_element_by_class_name("Post")
-            element = driver.find_element(by=By.CLASS_NAME, value='Post')
-            element.screenshot('temp/' + sub['id'] + '/title.png')
+        tk.Label(self.frame2, text="Number of Posts: ").pack()
+        self.posts=tk.Entry(self.frame2, width=30)
+        self.posts.insert(0, "1")
+        self.posts.pack()
 
-            i = 0
-            for comment in sub['comment']:
-                driver.get(comment['link'])
-                element = driver.find_element(by=By.CLASS_NAME, value='Comment')
-                element.screenshot('temp/' + sub['id'] + '/' + str(i) + 'com.png')
-                i = i+1
-        driver.quit()
+        tk.Label(self.frame2, text="Number of Comments: ").pack()
+        self.comments=tk.Entry(self.frame2, width=30)
+        self.comments.insert(0, "0")
+        self.comments.pack()
 
-    def genAudio(self):
-        for sub in self.subs:
-            # TTS
-            audioString = ''
-            audioString += sub['title'] + "."
-            audioString += sub['selftext'] + "."
+        tk.Label(self.frame2, text="Skipping posts: ").pack()
+        self.skipPosts=tk.Entry(self.frame2, width=30)
+        self.skipPosts.insert(0, "0")
+        self.skipPosts.pack()
 
-            aud = gTTS(text=audioString, lang='en', slow=False, tld='ca')
+        vidSelect = tk.Button(self.root, text="Change Background Video", command=self.selFile)
+        vidSelect.pack()
+        run = tk.Button(self.root, text="Run", command=self.startApp)
+        run.pack()
 
-            path = 'temp/' + sub['id']
-            if not os.path.exists(path):
-                os.makedirs(path)
+        self.frame3 = tk.Frame(height=0, width=0)
+        self.frame3.pack()
 
-            aud.save('temp/' + sub['id'] + '/tts.mp3')
+        self.updateLabels()
+        self.root.mainloop()
 
-            i = 0
-            for comment in sub['comment']:
-                aud = gTTS(text=comment['body']+'.', lang='en', slow=False, tld='ca')
-                aud.save('temp/' + sub['id'] + '/' + str(i) + 'com.mp3')
-                i = i+1
+    def selFile(self):
+        for widget in self.frame1.winfo_children():
+            widget.destroy()
 
-    def genVideo(self, quality=1, shorts=False):
-        for sub in self.subs:
-            videoclip = mp.VideoFileClip("src/video/vid.mp4")
-            videoclip = videoclip.resize(quality)
-            audioclip = mp.AudioFileClip('temp/' + sub['id'] + '/tts.mp3')
+        filename = filedialog.askopenfilename(initialdir="/", title="Change Background Video",
+        filetypes=(("videos", "*.mp4"), ("all files", "*.*")))
+        if filename != "":
+            self.vidPath=filename
+        
+        self.updateLabels()
+        
+    def startApp(self):
+        dat = {
+            "subreddit":self.subreddit.get(), 
+            "posts":int(self.posts.get()), 
+            "comments":int(self.comments.get()), 
+            "skipPosts":int(self.skipPosts.get()), 
+            "quality":int(self.quality), 
+            "shorts":self.shorts, 
+            "vidPath": str(self.vidPath)
+        }
 
-            titleVid = (mp.ImageClip('temp/' + sub['id'] + '/title.png')
-                .set_duration(audioclip.duration)
-                .resize(width=640*quality)
-                .set_pos(("center","center"))
-            )
+        with open(path+"/src/dat.json", "w") as outfile:
+            json.dump(dat, outfile)
 
-            for i in range(len(sub['comment'])):
-                aud = mp.AudioFileClip('temp/' + sub['id'] + '/' + str(i) + 'com.mp3')
-                vid = (mp.ImageClip('temp/' + sub['id'] + '/' + str(i) + 'com.png')
-                    .set_duration(aud.duration)
-                    .resize(width=640*quality)
-                    .set_pos(("center","center"))
-                )
+        appPath = path+"/src/script.py"
+        globals={"__file__": appPath,
+            "__name__": "__main__",}
+        with open(appPath, 'rb') as file:
+            exec(compile(file.read(), appPath, 'exec'), globals, None)
+        tk.Label(self.frame3, text="Done!").pack()
 
-                audioclip = mp.concatenate_audioclips([audioclip, aud])
-                titleVid = mp.concatenate_videoclips([titleVid, vid])
-
-            titleVid = titleVid.set_pos(("center","center"))
-            start = random.randint(0, int(videoclip.duration-titleVid.duration))
-            end = start + titleVid.duration
-            videoclip = videoclip.subclip(start, end)
-            
-            audioclip.write_audiofile('temp/' + sub['id'] + '/fintts.mp3')
-
-            # Layer BG Music
-            sound1 = AudioSegment.from_file("temp/" + sub['id'] + "/fintts.mp3", format="mp3")
-            sound2 = AudioSegment.from_file("src/audio/" + os.listdir("src/audio")[random.randint(0,len(os.listdir("src/audio"))-1)], format="mp3")
-            overlay = sound1.overlay(sound2, position=0, loop=True)
-            overlay.export("temp/" + sub['id'] + "/finalAudio.mp3", format="mp3")
-
-            path = 'out/' + sub['id']
-            if not os.path.exists(path):
-                os.makedirs(path)
-
-            final = mp.CompositeVideoClip([videoclip, titleVid])
-
-            if (shorts):
-                w,h = final.size
-                final = crop(final,  x_center=w/2 , y_center=h/2, width=w/2, height=h)
-
-            final = final.set_audio(mp.AudioFileClip('temp/' + sub['id'] + '/finalAudio.mp3'))
-
-            if (shorts):
-                final.write_videofile('out/' + sub['id'] + '/' + sub['id'] + '_s.mp4')
-            else:
-                final.write_videofile('out/' + sub['id'] + '/' + sub['id'] + '.mp4')
-
-            f = open('out/' + sub['id'] + "/dat" + ".txt", "a")
-            f.write("Title: " + sub['title']
-            + "\nSubreddit: " + sub['subreddit'])
-            f.close()
-
-            shutil.rmtree("temp/" + sub['id'])
-        shutil.rmtree("temp")
-
-# Executing Everything
-rTTS=RedditTTS()
-rTTS.getSubmissions(subreddit='jokes', posts=1, comments=3, skipPosts=0)
-rTTS.genImages()
-rTTS.genAudio()
-rTTS.genVideo(quality=1, shorts=True)
+    def updateLabels(self):
+        tk.Label(self.frame1, text="Current Video Path: "+self.vidPath).pack()
+        
+gui = GUI()
+gui.loop()

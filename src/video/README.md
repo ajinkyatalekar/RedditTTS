@@ -1,1 +1,1 @@
-Place the background video file here, name it *vid.mp4*
+Save default video file here, name it *vid.mp4*
