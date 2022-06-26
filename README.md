@@ -10,7 +10,8 @@ and screenshots of the post and top comments. :sparkles:
 1. Create your own Reddit Bot [here](https://www.reddit.com/prefs/apps/) and note down the `client id` and `client secret`.  
 2. Clone the repo to your machine.
 3. Now run *RedditTTS.py* and insert the `client id` and `client secret` you just made. Also update perameters like `subreddit`, `posts` and `comments` to get posts from the subreddit of your choice and a video will
-be generated in the */out* folder ~! :smile:
+be generated in the */out* folder ~! :smile:  
+The */out* folder also contains a .txt file containing the information about the post.
 
 ## Libraries Used
 All of these are included with the app, except `ffmpeg`. If missing, just download it [here](https://ffmpeg.org/download.html). 
