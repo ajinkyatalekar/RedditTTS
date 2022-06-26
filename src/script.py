@@ -2,21 +2,21 @@
 # Misc
 import random
 import os
-from shutil import rmtree
-# Reddit API
-from praw import Reddit
-# Screenshot Maker
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-# TTS, Audio Editor, and Video Editor
-from gtts import gTTS
-from pydub import AudioSegment
-# Video Generator
-import moviepy.editor as mp
-from moviepy.video.fx.all import crop
-from json import load
 import sys
+from src.lib.shutil import rmtree
+# Reddit API
+from src.lib.praw import Reddit
+# Screenshot Maker
+from src.lib.selenium import webdriver
+from src.lib.selenium.webdriver.common.by import By
+from src.lib.webdriver_manager.chrome import ChromeDriverManager
+# TTS, Audio Editor, and Video Editor
+from src.lib.gtts import gTTS
+from src.lib.pydub import AudioSegment
+# Video Generator
+import src.lib.moviepy.editor as mp
+from src.lib.moviepy.video.fx.all import crop
+from src.lib.json import load
 
 if getattr(sys, 'frozen', False):
     app_path = os.path.dirname(sys.executable)
@@ -31,9 +31,7 @@ class RedditTTS:
         self.reddit = Reddit(
             client_id=data['client_id'],
             client_secret=data['client_secret'],
-            user_agent=data['user_agent'],
-            username=data['username'],
-            password=data['password']
+            user_agent=data['user_agent']
         )
         self.subs = []
 
@@ -122,7 +120,7 @@ class RedditTTS:
     def genVideo(self, quality=1, shorts=False, vidPath=app_path+"/video/vid.mp4"):
         for sub in self.subs:
             videoclip = mp.VideoFileClip(vidPath)
-            videoclip = videoclip.resize(quality)
+            # videoclip = videoclip.resize(quality)
             audioclip = mp.AudioFileClip(app_path+'/temp/' + sub['id'] + '/tts.mp3')
 
             titleVid = (mp.ImageClip(app_path+'/temp/' + sub['id'] + '/title.png')
@@ -151,7 +149,7 @@ class RedditTTS:
 
             # Layer BG Music
             sound1 = AudioSegment.from_file(app_path+"/temp/" + sub['id'] + "/fintts.mp3", format="mp3")
-            sound2 = AudioSegment.from_file(app_path+"/audio/" + os.listdir(app_path+"/audio")[random.randint(0,len(os.listdir("audio"))-1)], format="mp3")
+            sound2 = AudioSegment.from_file(app_path+"/audio/" + os.listdir(app_path+"/audio")[random.randint(0,len(os.listdir(app_path+"/audio"))-1)], format="mp3")
             overlay = sound1.overlay(sound2, position=0, loop=True)
             overlay.export(app_path+"/temp/" + sub['id'] + "/finalAudio.mp3", format="mp3")
 
