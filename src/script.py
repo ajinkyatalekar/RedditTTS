@@ -18,7 +18,6 @@ import src.lib.moviepy.editor as mp
 from src.lib.moviepy.video.fx.all import crop
 from src.lib.json import load
 
-
 if getattr(sys, 'frozen', False):
     app_path = os.path.dirname(sys.executable)
 else:
