@@ -1,0 +1,1 @@
+Save default video file here, name it *vid.mp4*
