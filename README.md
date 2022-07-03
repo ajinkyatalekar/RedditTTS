@@ -8,15 +8,13 @@ and screenshots of the post and top comments. :sparkles:
 
 ## Usage
 1. Create your own Reddit Bot [here](https://www.reddit.com/prefs/apps/) and note down the `client id` and `client secret`.  
-2. Now, in the *config.py* file, put in your bot's `client_id` and `client_secret`, also put in your Reddit `username` and `password` which the bot will use
-while scraping Reddit.  
-3. Add desired background video file to *src/video* and name it `bgFull.mp4`.
-4. Finally, install all the required libraries mentioned below and you're ready to go!
-5. Now open *RedditTTS.py* and update perameters like `subreddit`, `posts` and `comments` to get posts from the subreddit of your choice and a video will
-be generated in the */out* folder ~! :smile:
+2. Clone the repo to your machine.
+3. Now run *RedditTTS.py* and insert the `client id` and `client secret` you just made. Also update perameters like `subreddit`, `posts` and `comments` to get posts from the subreddit of your choice and a video will
+be generated in the */out* folder ~! :smile:  
+The */out* folder also contains a .txt file containing the information about the post.
 
 ## Libraries Used
-If any of these are missing, just do `pip install <name>` and that should resolve it. For `ffmpeg`, install it from their website.  
+All of these are included with the app, except `ffmpeg`. If missing, just download it [here](https://ffmpeg.org/download.html). 
 - `praw` to scrape Reddit posts.  
 - `selenium` and `webdriver_manager` to generate screenshots of the posts.  
 - `gtts` and `pydub` to generate audio.  
@@ -24,8 +22,9 @@ If any of these are missing, just do `pip install <name>` and that should resolv
 - `ffmpeg` and `ffprobe` to generate video.
 
 ## Future Plans
-- Use the Reddit API directly instead of praw to improve performance (Current working on this :exclamation:).  
-- Once the script is finalized, make a GUI App to make using this ultra easy. :dizzy:
+- Once the script is finalized, make a GUI App to make using this ultra easy.:dizzy: &rarr; Done! ✅
+- Make libraries local, allowing app to be run without installing the whole list of modules. &rarr; Done! ✅
+- Use the Reddit API directly instead of praw to improve performance {Current working on this :exclamation:}. 
 
-## Creator
+## Contributors
 Ajinkya Talekar | CS Student at University at Buffalo | [ajinkyatalekar.github.io](https://ajinkyatalekar.github.io)
