@@ -37,7 +37,7 @@ class RedditTTS:
         self.subs = []
 
     # Get Submissions from specified subreddit
-    def getSubmissions(self, subreddit='askreddit', posts=3, comments=0, skipPosts=0, u18=False):
+    def getSubmissions(self, subreddit='askreddit', posts=3, comments=0, skipPosts=0, u18=True):
         exists = True
         try:
             self.reddit.subreddits.search_by_name(subreddit, exact=True)

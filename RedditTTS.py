@@ -15,7 +15,7 @@ class GUI:
         self.root = tk.Tk()
         self.vidPath = "null"
         self.quality=1
-        self.shorts=True
+        self.shorts=False
         with open(path+'/src/config.json') as json_file:
             self.config = json.load(json_file)
 
@@ -109,6 +109,6 @@ class GUI:
 
     def updateLabels(self):
         tk.Label(self.frame1, text="Current Video Path: "+self.vidPath).pack()
-        
+
 gui = GUI()
 gui.loop()
