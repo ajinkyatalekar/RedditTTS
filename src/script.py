@@ -27,6 +27,7 @@ else:
 class RedditTTS:
     # Auth and Setup
     def __init__(self):
+        print("Logging in Reddit...")
         with open(app_path+'/config.json') as json_file:
             data = load(json_file)
         self.reddit = Reddit(
@@ -35,9 +36,11 @@ class RedditTTS:
             user_agent="rTTS 2.0"
         )
         self.subs = []
+        print("Logged in successfully!")
 
     # Get Submissions from specified subreddit
     def getSubmissions(self, subreddit='askreddit', posts=3, comments=0, skipPosts=0, u18=True):
+        print("Checking if subreddit exists...")
         exists = True
         try:
             self.reddit.subreddits.search_by_name(subreddit, exact=True)
@@ -45,7 +48,7 @@ class RedditTTS:
             exists = False
             return
 
-        print("Subreddit Exists; Fetching posts")
+        print("Subreddit Exists! Fetching posts...")
 
         submissions = iter(self.reddit.subreddit(subreddit).hot(limit=posts))
         for i in range(skipPosts):
@@ -53,6 +56,7 @@ class RedditTTS:
 
         for submission in submissions:
             if (u18 and submission.over_18 == True):
+                print("NSFW post detected! Skipping this post.")
                 continue
             
             c = []
@@ -70,8 +74,10 @@ class RedditTTS:
                 'subreddit': subreddit,
                 'comment': c
             })
+            print("Fetching posts complete!")
 
     def genImages(self):
+        print("Generating images...")
         options = webdriver.ChromeOptions()
         # Using Custom Profile with Reddit account logged in to bypass NSFW popups -> Change <user> to your name
         # options.add_argument(r"--user-data-dir=C:/Users/<user>/AppData/Local/Google/Chrome/User Data")
@@ -96,8 +102,10 @@ class RedditTTS:
                 element.screenshot(app_path+'/temp/' + sub['id'] + '/' + str(i) + 'com.png')
                 i = i+1
         driver.quit()
+        print("Successfully generated images!")
 
     def genAudio(self):
+        print("Generating audio...")
         for sub in self.subs:
             # TTS
             audioString = ''
@@ -117,10 +125,16 @@ class RedditTTS:
                 aud = gTTS(text=comment['body']+'.', lang='en', slow=False, tld='ca')
                 aud.save(app_path+'/temp/' + sub['id'] + '/' + str(i) + 'com.mp3')
                 i = i+1
+            print("Successfully generated audio!")
 
     def genVideo(self, quality=1, shorts=False, vidPath=app_path+"/video/vid.mp4"):
+        print("Generating video...")
         for sub in self.subs:
-            videoclip = mp.VideoFileClip(vidPath)
+            if (vidPath == "null"):
+                videoclip = mp.VideoFileClip("src/color.mp4")
+            else:
+                videoclip = mp.VideoFileClip(vidPath)
+
             # videoclip = videoclip.resize(quality)
             audioclip = mp.AudioFileClip(app_path+'/temp/' + sub['id'] + '/tts.mp3')
 
@@ -192,6 +206,7 @@ class RedditTTS:
         path = app_path+'/temp'
         if os.path.exists(path):
             rmtree(app_path+"/temp")
+        print("Done! see 'out/' folder for the final video.")
 
 def run(subreddit, posts, comments, skipPosts, quality, shorts, vidPath):
     rTTS=RedditTTS()

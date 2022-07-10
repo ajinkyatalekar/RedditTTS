@@ -11,7 +11,7 @@ else:
 
 class GUI:
     def __init__(self):
-        print(path)
+        print("Running GUI.")
         self.root = tk.Tk()
         self.vidPath = "null"
         self.quality=1
@@ -20,12 +20,13 @@ class GUI:
             self.config = json.load(json_file)
 
     def loop(self):
-
+        self.root.title('RedditTTS v1.0')
         self.frame2 = tk.Frame( width=800)
         self.frame2.pack()
         self.frame1 = tk.Frame( width=800)
         self.frame1.pack()
-
+        tk.Label(self.frame2, text="RedditTTS", font=("Arial", 20)).pack()
+        tk.Label(self.frame2, text="IMPORTANT: The app skips NSFW posts. So you might not get a video if post is NSFW...").pack()
         tk.Label(self.frame2, text="Reddit Client ID: ").pack()
         self.client_id=tk.Entry(self.frame2, width=30)
         self.client_id.insert(0, self.config['client_id'])
@@ -36,7 +37,7 @@ class GUI:
         self.client_secret.insert(0, self.config['client_secret'])
         self.client_secret.pack()
 
-        tk.Label(self.frame2, text="(If you don't have a Reddit Client, you can get it here: https://www.reddit.com/prefs/apps)").pack()
+        tk.Label(self.frame2, text="(If you don't have a Reddit app, you can get it here: https://www.reddit.com/prefs/apps)").pack()
 
         tk.Label(self.frame2, text="Subreddit: ").pack()
         self.subreddit=tk.Entry(self.frame2, width=30)
@@ -59,6 +60,7 @@ class GUI:
         self.skipPosts.pack()
 
         vidSelect = tk.Button(self.root, text="Change Background Video", command=self.selFile)
+        tk.Label(self.root, text="If video path is 'null', a video with black background will be made.").pack()
         vidSelect.pack()
         run = tk.Button(self.root, text="Run", command=self.startApp)
         run.pack()
@@ -105,10 +107,10 @@ class GUI:
             "__name__": "__main__",}
         with open(appPath, 'rb') as file:
             exec(compile(file.read(), appPath, 'exec'), globals, None)
-        tk.Label(self.frame3, text="Done!").pack()
+        tk.Label(self.frame3, text="Done! see 'out/' folder for the final video.").pack()
 
     def updateLabels(self):
-        tk.Label(self.frame1, text="Current Video Path: "+self.vidPath).pack()
+        tk.Label(self.frame1, text="Current Background Video Path: "+self.vidPath).pack()
 
 gui = GUI()
 gui.loop()
