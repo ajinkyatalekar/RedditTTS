@@ -7,7 +7,7 @@ and screenshots of the post and top comments. :sparkles:
 **TL;DR** it makes those Reddit text-to-speech videos that have taken over YouTube, TikTok, FaceBook, and everywhere else for you.
 
 ## Usage
-1. Create your own Reddit Bot [here](https://www.reddit.com/prefs/apps/) and note down the `client id` and `client secret`.  
+1. Create your own Reddit Bot [here](https://www.reddit.com/prefs/apps/), by selecting *'Personal Use Script'* and note down the `client id` and `client secret`.  
 2. Download the latest release for this app.
 3. Now run *RedditTTS.py* and insert the `client id` and `client secret` you just made.  
 *IMPORTANT: Select a background video*. Also update perameters like `subreddit`, `posts` and `comments` to get posts from the subreddit of your choice and a video will
