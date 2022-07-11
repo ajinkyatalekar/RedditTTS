@@ -1,10 +1,14 @@
-import src.lib.tkinter as tk
-from src.lib.tkinter import filedialog
+# Misc
 import json
 import random
 import os
 import sys
+import threading
+from turtle import width
 from src.lib.shutil import rmtree
+# GUI
+import src.lib.tkinter as tk
+from src.lib.tkinter import filedialog
 # Reddit API
 from src.lib.praw import Reddit
 # Screenshot Maker
@@ -19,14 +23,143 @@ import src.lib.moviepy.editor as mp
 from src.lib.moviepy.video.fx.all import crop
 from src.lib.json import load
 
-
-if getattr(sys, 'frozen', False):
-    path = os.path.dirname(sys.executable)
-else:
-    path = os.path.dirname(os.path.abspath(__file__))
+# Get current file path
+path = os.path.dirname(os.path.abspath(__file__))
 app_path = path+'/src'
 
+# Console log
+class PrintLogger(): # create file like object
+    def __init__(self, textbox): # pass reference to text widget
+        self.textbox = textbox # keep ref
+
+    def write(self, text):
+        self.textbox.insert(tk.END, text) # write text to textbox
+            # could also scroll to end of textbox here to make sure always visible
+
+    def flush(self): # needed for file like object
+        pass
+
+# GUI Code
+class GUI:
+
+    def __init__(self):
+        print("Running GUI.")
+        self.root = tk.Tk()
+        self.vidPath = "null"
+        self.quality=1
+        self.shorts=False
+        with open(path+'/src/config.json') as json_file:
+            self.config = json.load(json_file)
+
+    def loop(self):
+        self.root.title('RedditTTS v1.0')
+        self.frame2 = tk.Frame( width=800)
+        self.frame2.pack()
+        self.frame1 = tk.Frame( width=800)
+        self.frame1.pack()
+        tk.Label(self.frame2, text="RedditTTS", font=("Arial", 20)).pack()
+        tk.Label(self.frame2, text="IMPORTANT: The app skips NSFW posts. So you might not get a video if post is NSFW...").pack()
+        tk.Label(self.frame2, text="Reddit Client ID: ").pack()
+        self.client_id=tk.Entry(self.frame2, width=30)
+        self.client_id.insert(0, self.config['client_id'])
+        self.client_id.pack()
+
+        tk.Label(self.frame2, text="Reddit Client Secret: ").pack()
+        self.client_secret=tk.Entry(self.frame2, width=30)
+        self.client_secret.insert(0, self.config['client_secret'])
+        self.client_secret.pack()
+
+        tk.Label(self.frame2, text="(If you don't have a Reddit app, you can get it here: https://www.reddit.com/prefs/apps)").pack()
+
+        tk.Label(self.frame2, text="Subreddit: ").pack()
+        self.subreddit=tk.Entry(self.frame2, width=30)
+        self.subreddit.insert(0, "askreddit")
+        self.subreddit.pack()
+
+        tk.Label(self.frame2, text="Number of Posts: ").pack()
+        self.posts=tk.Entry(self.frame2, width=30)
+        self.posts.insert(0, "1")
+        self.posts.pack()
+
+        tk.Label(self.frame2, text="Number of Comments: ").pack()
+        self.comments=tk.Entry(self.frame2, width=30)
+        self.comments.insert(0, "0")
+        self.comments.pack()
+
+        tk.Label(self.frame2, text="Skipping posts: ").pack()
+        self.skipPosts=tk.Entry(self.frame2, width=30)
+        self.skipPosts.insert(0, "0")
+        self.skipPosts.pack()
+
+        vidSelect = tk.Button(self.root, text="Change Background Video", command=self.selFile)
+        tk.Label(self.root, text="If video path is 'null', a video with black background will be made.").pack()
+        vidSelect.pack()
+        run = tk.Button(self.root, text="Run", command=self.startAppPre)
+        run.pack()
+
+        self.frame3 = tk.Frame(height=100, width=0)
+        self.frame3.pack()
+        # Log
+        t = tk.Text(self.frame3, width=100, height=50)
+        t.pack()
+        pl = PrintLogger(t)
+        sys.stdout = pl
+
+
+        self.updateLabels()
+        self.root.mainloop()
+
+    def refresh(self):
+        self.root.update()
+        self.root.after(1000,self.refresh)
+
+    def selFile(self):
+        for widget in self.frame1.winfo_children():
+            widget.destroy()
+
+        filename = filedialog.askopenfilename(initialdir="/", title="Change Background Video",
+        filetypes=(("videos", "*.mp4"), ("all files", "*.*")))
+        if filename != "":
+            self.vidPath=filename
+        
+        self.updateLabels()
+        
+    def startAppPre(self):
+        self.refresh()
+        threading.Thread(target=self.startApp).start()
+
+    def startApp(self):
+        # Main
+        dat = {
+            "subreddit":self.subreddit.get(), 
+            "posts":int(self.posts.get()), 
+            "comments":int(self.comments.get()), 
+            "skipPosts":int(self.skipPosts.get()), 
+            "quality":int(self.quality), 
+            "shorts":self.shorts, 
+            "vidPath": str(self.vidPath),
+            "u18": True
+        }
+        with open(path+"/src/dat.json", "w") as outfile:
+            json.dump(dat, outfile)
+
+        config = {
+            "client_id":self.client_id.get(),
+            "client_secret":self.client_secret.get()
+        }
+        with open(path+"/src/config.json", "w") as outfile:
+            json.dump(config, outfile)
+
+        rTTS = RedditTTS()
+        rTTS.run()
+        tk.Label(self.frame3, text="Done! see 'out/' folder for the final video.").pack()
+
+    def updateLabels(self):
+        tk.Label(self.frame1, text="Current Background Video Path: "+self.vidPath).pack()
+
+# Video Generator Code
 class RedditTTS:
+
     # Auth and Setup
     def __init__(self):
         print("Logging in Reddit...")
@@ -40,16 +173,14 @@ class RedditTTS:
         self.subs = []
         print("Logged in successfully!")
 
-    def de(self,subreddit, posts, comments, skipPosts, quality, shorts, vidPath):
-        self.getSubmissions(subreddit=subreddit, posts=posts, comments=comments, skipPosts=skipPosts)
-        self.genImages()
-        self.genAudio()
-        self.genVideo(quality=quality, shorts=shorts, vidPath=vidPath)
-
+    # Running the entire thing
     def run(self):
         with open(app_path+'/dat.json') as json_file:
             data = load(json_file)
-        self.de(data["subreddit"],data["posts"],data["comments"],data["skipPosts"],data["quality"],data["shorts"],data["vidPath"])
+        self.getSubmissions(subreddit=data["subreddit"], posts=data["posts"], comments=data["comments"], skipPosts=data["skipPosts"], u18 = data["u18"])
+        self.genImages()
+        self.genAudio()
+        self.genVideo(quality=data["quality"], shorts=data["shorts"], vidPath=data["vidPath"])
 
     # Get Submissions from specified subreddit
     def getSubmissions(self, subreddit='askreddit', posts=3, comments=0, skipPosts=0, u18=True):
@@ -94,7 +225,6 @@ class RedditTTS:
         options = webdriver.ChromeOptions()
         # Using Custom Profile with Reddit account logged in to bypass NSFW popups -> Change <user> to your name
         # options.add_argument(r"--user-data-dir=C:/Users/<user>/AppData/Local/Google/Chrome/User Data")
-        # options.add_argument(r'--profile-directory="Default"')
         driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=options)
 
         for sub in self.subs:
@@ -205,127 +335,11 @@ class RedditTTS:
             + "\nSubreddit: " + sub['subreddit'])
             f.close()
 
-            # if (shorts):
-            #     final.write_videofile(app_path+'/../out/' + sub['id'] + '/' + sub['id'] + '_s.mp4')
-            # else:
-            #     final.write_videofile(app_path+'/../out/' + sub['id'] + '/' + sub['id'] + '.mp4')
-
-            # f = open(app_path+'/../out/' + sub['id'] + "/dat" + ".txt", "a")
-            # f.write("Title: " + sub['title']
-            # + "\nSubreddit: " + sub['subreddit'])
-            # f.close()
-
             rmtree(app_path+"/temp/" + sub['id'])
         path = app_path+'/temp'
         if os.path.exists(path):
             rmtree(app_path+"/temp")
         print("Done! see 'out/' folder for the final video.")
-
-
-class GUI:
-    def __init__(self):
-        print("Running GUI.")
-        self.root = tk.Tk()
-        self.vidPath = "null"
-        self.quality=1
-        self.shorts=False
-        with open(path+'/src/config.json') as json_file:
-            self.config = json.load(json_file)
-
-    def loop(self):
-        self.root.title('RedditTTS v1.0')
-        self.frame2 = tk.Frame( width=800)
-        self.frame2.pack()
-        self.frame1 = tk.Frame( width=800)
-        self.frame1.pack()
-        tk.Label(self.frame2, text="RedditTTS", font=("Arial", 20)).pack()
-        tk.Label(self.frame2, text="IMPORTANT: The app skips NSFW posts. So you might not get a video if post is NSFW...").pack()
-        tk.Label(self.frame2, text="Reddit Client ID: ").pack()
-        self.client_id=tk.Entry(self.frame2, width=30)
-        self.client_id.insert(0, self.config['client_id'])
-        self.client_id.pack()
-
-        tk.Label(self.frame2, text="Reddit Client Secret: ").pack()
-        self.client_secret=tk.Entry(self.frame2, width=30)
-        self.client_secret.insert(0, self.config['client_secret'])
-        self.client_secret.pack()
-
-        tk.Label(self.frame2, text="(If you don't have a Reddit app, you can get it here: https://www.reddit.com/prefs/apps)").pack()
-
-        tk.Label(self.frame2, text="Subreddit: ").pack()
-        self.subreddit=tk.Entry(self.frame2, width=30)
-        self.subreddit.insert(0, "askreddit")
-        self.subreddit.pack()
-
-        tk.Label(self.frame2, text="Number of Posts: ").pack()
-        self.posts=tk.Entry(self.frame2, width=30)
-        self.posts.insert(0, "1")
-        self.posts.pack()
-
-        tk.Label(self.frame2, text="Number of Comments: ").pack()
-        self.comments=tk.Entry(self.frame2, width=30)
-        self.comments.insert(0, "0")
-        self.comments.pack()
-
-        tk.Label(self.frame2, text="Skipping posts: ").pack()
-        self.skipPosts=tk.Entry(self.frame2, width=30)
-        self.skipPosts.insert(0, "0")
-        self.skipPosts.pack()
-
-        vidSelect = tk.Button(self.root, text="Change Background Video", command=self.selFile)
-        tk.Label(self.root, text="If video path is 'null', a video with black background will be made.").pack()
-        vidSelect.pack()
-        run = tk.Button(self.root, text="Run", command=self.startApp)
-        run.pack()
-
-        self.frame3 = tk.Frame(height=0, width=0)
-        self.frame3.pack()
-
-        self.updateLabels()
-        self.root.mainloop()
-
-    def selFile(self):
-        for widget in self.frame1.winfo_children():
-            widget.destroy()
-
-        filename = filedialog.askopenfilename(initialdir="/", title="Change Background Video",
-        filetypes=(("videos", "*.mp4"), ("all files", "*.*")))
-        if filename != "":
-            self.vidPath=filename
-        
-        self.updateLabels()
-        
-    def startApp(self):
-        dat = {
-            "subreddit":self.subreddit.get(), 
-            "posts":int(self.posts.get()), 
-            "comments":int(self.comments.get()), 
-            "skipPosts":int(self.skipPosts.get()), 
-            "quality":int(self.quality), 
-            "shorts":self.shorts, 
-            "vidPath": str(self.vidPath)
-        }
-        with open(path+"/src/dat.json", "w") as outfile:
-            json.dump(dat, outfile)
-
-        config = {
-            "client_id":self.client_id.get(),
-            "client_secret":self.client_secret.get()
-        }
-        with open(path+"/src/config.json", "w") as outfile:
-            json.dump(config, outfile)
-
-        # appPath = path+"/src/script.py"
-        # globals={"__file__": appPath,
-        #     "__name__": "__main__",}
-        # with open(appPath, 'rb') as file:
-        #     exec(compile(file.read(), appPath, 'exec'), globals, None)
-        rTTS = RedditTTS()
-        rTTS.run()
-        tk.Label(self.frame3, text="Done! see 'out/' folder for the final video.").pack()
-
-    def updateLabels(self):
-        tk.Label(self.frame1, text="Current Background Video Path: "+self.vidPath).pack()
 
 gui = GUI()
 gui.loop()
