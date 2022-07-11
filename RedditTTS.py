@@ -4,7 +4,6 @@ import random
 import os
 import sys
 import threading
-from turtle import width
 from src.lib.shutil import rmtree
 # GUI
 import src.lib.tkinter as tk
@@ -53,58 +52,59 @@ class GUI:
 
     def loop(self):
         self.root.title('RedditTTS v1.0')
-        self.frame2 = tk.Frame( width=800)
-        self.frame2.pack()
-        self.frame1 = tk.Frame( width=800)
+        self.root.state('zoomed')
+        self.frame1 = tk.Frame(width=800)
         self.frame1.pack()
-        tk.Label(self.frame2, text="RedditTTS", font=("Arial", 20)).pack()
-        tk.Label(self.frame2, text="IMPORTANT: The app skips NSFW posts. So you might not get a video if post is NSFW...").pack()
-        tk.Label(self.frame2, text="Reddit Client ID: ").pack()
-        self.client_id=tk.Entry(self.frame2, width=30)
+        self.frame3 = tk.Frame( width=800)
+        self.frame3.pack()
+        tk.Label(self.frame1, text="RedditTTS", font=("Arial", 20)).pack()
+        tk.Label(self.frame1, text="IMPORTANT: The app skips NSFW posts. So you might not get a video if post is NSFW...").pack()
+        tk.Label(self.frame1, text="Reddit Client ID: ").pack()
+        self.client_id=tk.Entry(self.frame1, width=30)
         self.client_id.insert(0, self.config['client_id'])
         self.client_id.pack()
 
-        tk.Label(self.frame2, text="Reddit Client Secret: ").pack()
-        self.client_secret=tk.Entry(self.frame2, width=30)
+        tk.Label(self.frame1, text="Reddit Client Secret: ").pack()
+        self.client_secret=tk.Entry(self.frame1, width=30)
         self.client_secret.insert(0, self.config['client_secret'])
         self.client_secret.pack()
 
-        tk.Label(self.frame2, text="(If you don't have a Reddit app, you can get it here: https://www.reddit.com/prefs/apps)").pack()
+        tk.Label(self.frame1, text="(If you don't have a Reddit app, you can get it here: https://www.reddit.com/prefs/apps)").pack()
 
-        tk.Label(self.frame2, text="Subreddit: ").pack()
-        self.subreddit=tk.Entry(self.frame2, width=30)
+        tk.Label(self.frame1, text="Subreddit: ").pack()
+        self.subreddit=tk.Entry(self.frame1, width=30)
         self.subreddit.insert(0, "askreddit")
         self.subreddit.pack()
 
-        tk.Label(self.frame2, text="Number of Posts: ").pack()
-        self.posts=tk.Entry(self.frame2, width=30)
+        tk.Label(self.frame1, text="Number of Posts: ").pack()
+        self.posts=tk.Entry(self.frame1, width=30)
         self.posts.insert(0, "1")
         self.posts.pack()
 
-        tk.Label(self.frame2, text="Number of Comments: ").pack()
-        self.comments=tk.Entry(self.frame2, width=30)
+        tk.Label(self.frame1, text="Number of Comments: ").pack()
+        self.comments=tk.Entry(self.frame1, width=30)
         self.comments.insert(0, "0")
         self.comments.pack()
 
-        tk.Label(self.frame2, text="Skipping posts: ").pack()
-        self.skipPosts=tk.Entry(self.frame2, width=30)
+        tk.Label(self.frame1, text="Skipping posts: ").pack()
+        self.skipPosts=tk.Entry(self.frame1, width=30)
         self.skipPosts.insert(0, "0")
         self.skipPosts.pack()
 
         vidSelect = tk.Button(self.root, text="Change Background Video", command=self.selFile)
         tk.Label(self.root, text="If video path is 'null', a video with black background will be made.").pack()
         vidSelect.pack()
-        run = tk.Button(self.root, text="Run", command=self.startAppPre)
+        run = tk.Button(self.root, text="Run", command=self.startAppPre, fg="white", bg="green", padx=20, pady=5)
         run.pack()
 
-        self.frame3 = tk.Frame(height=100, width=0)
-        self.frame3.pack()
+        self.frame2 = tk.Frame(height=100, width=50)
+        self.frame2.pack()
         # Log
-        t = tk.Text(self.frame3, width=100, height=50)
+        t = tk.Text(self.frame2, width=100, height=50, bg="black", fg="white")
         t.pack()
         pl = PrintLogger(t)
         sys.stdout = pl
-
+        print("Progress will be logged here.")
 
         self.updateLabels()
         self.root.mainloop()
@@ -114,7 +114,7 @@ class GUI:
         self.root.after(1000,self.refresh)
 
     def selFile(self):
-        for widget in self.frame1.winfo_children():
+        for widget in self.frame3.winfo_children():
             widget.destroy()
 
         filename = filedialog.askopenfilename(initialdir="/", title="Change Background Video",
@@ -152,10 +152,10 @@ class GUI:
 
         rTTS = RedditTTS()
         rTTS.run()
-        tk.Label(self.frame3, text="Done! see 'out/' folder for the final video.").pack()
+        tk.Label(self.frame2, text="Done! see 'out/' folder for the final video.").pack()
 
     def updateLabels(self):
-        tk.Label(self.frame1, text="Current Background Video Path: "+self.vidPath).pack()
+        tk.Label(self.frame3, text="Current Background Video Path: "+self.vidPath).pack()
 
 # Video Generator Code
 class RedditTTS:
@@ -274,7 +274,7 @@ class RedditTTS:
         print("Generating video...")
         for sub in self.subs:
             if (vidPath == "null"):
-                videoclip = mp.VideoFileClip("src/color.mp4")
+                videoclip = mp.VideoFileClip("src/video/color.mp4")
             else:
                 videoclip = mp.VideoFileClip(vidPath)
 
