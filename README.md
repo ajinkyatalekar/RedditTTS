@@ -7,6 +7,7 @@ and screenshots of the post and top comments. :sparkles:
 **TL;DR** it makes those Reddit text-to-speech videos that have taken over YouTube, TikTok, FaceBook, and everywhere else for you.
 
 ## Usage
+*NOTE: You need ffmpeg installed on your computer for this to work.*
 1. Create your own Reddit Bot [here](https://www.reddit.com/prefs/apps/), by selecting *'Personal Use Script'* and note down the `client id` and `client secret`.  
 2. Download the latest release for this app.
 3. Now open *src/config.json* and insert the `client id` and `client secret` you just made. Then run *RedditTTS.py*.  
