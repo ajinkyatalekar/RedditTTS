@@ -22,10 +22,10 @@ The */out* folder also contains a .txt file containing the information about the
 https://user-images.githubusercontent.com/91043799/197540358-fb9a456e-f404-4f96-b0f7-ca5278b78cad.mov
 
 ## Libraries Used
-All of these are included with the app, except `ImageMagick` and `ffmpeg`. If missing, just download it [here](https://ffmpeg.org/download.html). 
+All of these are included with the app, except `ImageMagick` and `ffmpeg`. If missing, just download them here: [ImageMagick](https://wiki.python.org/moin/ImageMagick#:~:text=PythonMagick%20is%20the%20Python%20binding,a%20large%20variety%20of%20formats.) and [ffmpeg](https://ffmpeg.org/download.html). 
 - `praw` to scrape Reddit posts.  
 - `ImageMagick` to generate screenshots of the posts.  
-- `gtts` and `pydub` to generate audio.  
+- `gtts` to generate audio.  
 - `moviepy` to generate video.  
 - `ffmpeg` and `ffprobe` to generate video.
 
