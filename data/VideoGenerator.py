@@ -4,7 +4,7 @@ import math
 from lib.gtts import gTTS
 import json
 import re
-from lib.moviepy import audio
+from lib.moviepy.audio.fx.volumex import volumex
 
 class VideoGenerator:
     
@@ -176,7 +176,7 @@ class VideoGenerator:
 
         final = concatenate_videoclips(final_video_clips, method="compose")
         background_audio = AudioFileClip("src/bg1.mp3").set_duration(final.duration)
-        background_audio = audio.fx.all.volumex(background_audio, 0.2)
+        background_audio = volumex(background_audio, 0.2)
         final_audio = CompositeAudioClip([final.audio, background_audio])
 
         final.audio = final_audio
