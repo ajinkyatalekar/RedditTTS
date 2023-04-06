@@ -1,7 +1,7 @@
 from shutil import rmtree
 from moviepy.editor import *
 import math
-from gtts import gTTS
+from lib.gtts import gTTS
 import json
 import re
 from moviepy import audio
