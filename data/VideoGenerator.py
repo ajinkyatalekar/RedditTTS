@@ -1,10 +1,10 @@
 from shutil import rmtree
-from moviepy.editor import *
+from lib.moviepy.editor import *
 import math
 from lib.gtts import gTTS
 import json
 import re
-from moviepy import audio
+from lib.moviepy import audio
 
 class VideoGenerator:
     
