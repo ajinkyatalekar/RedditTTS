@@ -27,6 +27,7 @@ All of these are included with the app, except `ImageMagick` and `ffmpeg`. If mi
 - `ImageMagick` to generate screenshots of the posts.  
 - `gtts` to generate audio.  
 - `moviepy` to generate video.  
+- `Tkinter` for GUI.  
 - `ffmpeg` and `ffprobe` to generate video.
 
 ## Future Plans
