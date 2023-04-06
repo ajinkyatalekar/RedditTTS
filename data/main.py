@@ -1,6 +1,6 @@
 from data.RedditAPI import *
 from data.VideoGenerator import *
-import tkinter as tk
+import lib.tkinter as tk
 
 class GUI:
 
