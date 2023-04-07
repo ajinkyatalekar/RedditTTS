@@ -5,6 +5,8 @@ from lib.gtts import gTTS
 import json
 import re
 from lib.moviepy.audio.fx.volumex import volumex
+from lib.moviepy.video.fx.resize import resize
+from lib.moviepy.video.fx.loop import loop
 
 class VideoGenerator:
     
@@ -85,7 +87,6 @@ class VideoGenerator:
         audio_speed_mult = 1
         
         # Video Generation
-
         final_video_clips = []
         
         header_margin_height = 50
@@ -167,7 +168,6 @@ class VideoGenerator:
         post_final_clip = concatenate_videoclips(post_array)
 
         final_video_clips.append(post_final_clip)
-        # final_video_clips.append(CompositeVideoClip([abs_background.set_duration(final_post_clip.duration), final_post_clip.set_position("center", "center")]))
 
         for comment_num in range(len(comments)):
             final_video_clips.append(self.comment_video(comments[comment_num]))
@@ -176,20 +176,30 @@ class VideoGenerator:
         if (bg_path==""):
             abs_background = ColorClip(size =(1920, 1080), color =[5, 5, 5])
 
-            print(final_video_clips)
-
             for clip_num in range(len(final_video_clips)):
                 final_video_clips[clip_num] = CompositeVideoClip([abs_background.set_duration(final_video_clips[clip_num].duration), final_video_clips[clip_num].set_position("center", "center")])
 
             final = concatenate_videoclips(final_video_clips, method="compose")
         else:
-            print("With BG!")
+            tot_dur = 0
+            for i in range(len(final_video_clips)):
+                tot_dur+=final_video_clips[i].duration
+
+            dur = 0
+
+            final = loop(VideoFileClip("bg_vid.mp4"), duration=tot_dur)
+            for i in range(len(final_video_clips)):
+                final = CompositeVideoClip([final, resize(final_video_clips[i], width=final.size[0]*0.9).set_position("center", "center").set_start(dur)])
+                dur+=final_video_clips[i].duration
+
+            final = final.set_end(dur)
+
 
         background_audio = AudioFileClip("src/bg1.mp3").set_duration(final.duration)
         background_audio = volumex(background_audio, 0.2)
         final.audio = CompositeAudioClip([final.audio, background_audio])
 
-        final.write_videofile('out/out.mp4',fps=5)
+        final.write_videofile('out/out.mp4',fps=24)
 
         if os.path.exists("temp/audio"):
             rmtree("temp/audio")
@@ -266,11 +276,9 @@ class VideoGenerator:
         
         final_comment_clip = concatenate_videoclips(comment_vid_arr)
 
-        # abs_background = ColorClip(size =(1920, 1080), color =[5, 5, 5])
         if (get_frame):
             final_comment_clip.save_frame(path, t = final_comment_clip.duration-1)
         else:
-            # return CompositeVideoClip([abs_background.set_duration(final_comment_clip.duration), final_comment_clip.set_position("center", "center")])
             return final_comment_clip;
 
 

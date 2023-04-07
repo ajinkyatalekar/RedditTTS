@@ -1,3 +1,4 @@
+from tkinter import filedialog
 from data.RedditAPI import *
 from data.VideoGenerator import *
 import lib.tkinter as tk
@@ -57,8 +58,19 @@ class GUI:
 
         self.api = RedditAPI()
         self.get_posts()
+
+    def open_file(self):
+        self.vid_file = filedialog.askopenfile(mode='r', filetypes=[('Videos', '*.mp4')])
+        if self.vid_file:
+            filepath = os.path.abspath(self.vid_file.name)
+            tk.Label(self.subreddit_frame, text="The File is located at : " + str(filepath), font=('Verdana', 15)).pack()
+    
+    def remove_path(self):
+        self.vid_file = ""
+        tk.Label(self.subreddit_frame, text="No video selected. Will generate blank video.", font=('Verdana', 15)).pack()
     
     def get_posts(self):
+        self.vid_file = ""
         self.done_comments = False
         self.client_info_frame.destroy()
         self.subreddit_frame = tk.Frame(self.root)
@@ -71,6 +83,14 @@ class GUI:
         self.sub_name=tk.Entry(self.subreddit_frame, width=30)
         self.sub_name.insert(0, self.post_data['subreddit'])
         self.sub_name.pack()
+
+        tk.Label(self.subreddit_frame, text="", font=("Verdana", 10)).pack()
+
+        tk.Label(self.subreddit_frame_2, text="Background Video Path: (Leave blank for black background)", font=("Verdana", 15)).pack()
+        tk.Button(self.subreddit_frame_2, text = "Choose Path", command=self.open_file).pack()
+        tk.Button(self.subreddit_frame_2, text = "Remove Path", command=self.remove_path).pack()
+
+        tk.Label(self.subreddit_frame_2, text="", font=("Verdana", 10)).pack()
         tk.Button(self.subreddit_frame, text="Browse Posts", command=self.display_posts).pack()
 
         tk.Label(self.subreddit_frame_2, text="", font=("Verdana", 10)).pack()
@@ -276,7 +296,7 @@ class GUI:
 
     def make_video(self):
         videoGenerator = VideoGenerator()
-        videoGenerator.generateVideo(self.chosen_post, self.chosen_comments)
+        videoGenerator.generateVideo(self.chosen_post, self.chosen_comments, self.vid_file)
         self.root.destroy()
         gui = GUI()
         gui.client_info()
