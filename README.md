@@ -19,6 +19,8 @@ Also update perameters like `subreddit`, `posts` and `comments` to get posts fro
 be generated in the */out* folder ~! :smile:  
 The */out* folder also contains a .txt file containing the information about the post.
 
+*THE UI HAS BEEN UPDATED FOR VERSION 2.0 WHICH ALLOWS YOU TO CHOOSE POSTS AND COMMENTS. THIS UI IS REDUNDENT NOW.*
+
 https://user-images.githubusercontent.com/91043799/197540358-fb9a456e-f404-4f96-b0f7-ca5278b78cad.mov
 
 ## Libraries Used
